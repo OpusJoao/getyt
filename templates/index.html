@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>getyt</title>
+    <!-- Incluir a meta tag para definir a codificação -->
+    <meta charset="UTF-8" />
+    <!-- Incluir os arquivos do Bootstrap -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div class="container mt-4">
+      <h1>Adicionar Músicas</h1>
+      <div id="inputs-container">
+        <div class="input-group mb-3">
+          <input
+            type="text"
+            class="form-control"
+            name="song"
+            placeholder="Digite o nome da música"
+          />
+          <button
+            class="btn btn-outline-primary"
+            type="button"
+            onclick="addInput()"
+          >
+            Adicionar
+          </button>
+        </div>
+      </div>
+      <select class="form-select mb-3" name="type">
+        <option value="audio">Audio</option>
+        <option value="video">Video</option>
+      </select>
+      <button class="btn btn-primary" onclick="sendData()">Enviar</button>
+    </div>
+
+    <!-- Modal de Carregamento -->
+    <div
+      class="modal fade"
+      id="loadingModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="loadingModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <div class="spinner-border text-primary" role="status">
+              <span class="sr-only"></span>
+            </div>
+            <h5 class="mt-2">Aguarde, processando...</h5>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="modal fade"
+      id="errorModal"
+      tabindex="-1"
+      role="dialog"
+      aria-labelledby="errorModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-body text-center">
+            <!-- Add the red alert icon from Font Awesome -->
+            <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
+            <h5 class="mt-2">Ocorreu um erro, tente novamente</h5>
+          </div>
+          <div class="modal-footer">
+            <!-- Add a red close button -->
+            <button
+              type="button"
+              class="btn btn-danger"
+              data-dismiss="modal"
+              onclick="$('#errorModal').modal('hide')"
+            >
+              Fechar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <a id="downloadLink" style="display: none"></a>
+    <!-- Scripts do Bootstrap -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
+
+    <script>
+      function addInput() {
+        const inputsContainer = document.getElementById("inputs-container");
+        const newInputGroup = document.createElement("div");
+        newInputGroup.classList.add("input-group", "mb-3");
+        newInputGroup.innerHTML = `
+                <input type="text" class="form-control" name="song" placeholder="Digite o nome da música">
+                <button class="btn btn-outline-primary" type="button" onclick="addInput()">Adicionar</button>
+            `;
+        inputsContainer.appendChild(newInputGroup);
+      }
+
+      function sendData() {
+        const inputs = document.getElementsByName("song");
+        const songs = [];
+        for (const input of inputs) {
+          if (input.value.trim() !== "") {
+            songs.push(input.value.trim());
+          }
+        }
+
+        const selectElement = document.querySelector('[name="type"]');
+        const selectedOption =
+          selectElement.options[selectElement.selectedIndex].value;
+
+        if (songs.length > 0) {
+          // Mostrar o modal de carregamento
+          $("#loadingModal").modal("show");
+
+          const jsonData = JSON.stringify({
+            songs: songs,
+            type: selectedOption,
+            toDownload: true,
+          });
+
+          fetch("http://127.0.0.1:5000", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json", // Set the content type of the request body (if sending JSON data)
+            },
+            body: jsonData,
+          })
+            .then((response) => {
+              $("#loadingModal").modal("hide");
+
+              if (!response.ok) {
+                throw new Error("Network response was not ok");
+              }
+
+              // Obter o nome do arquivo do cabeçalho 'Content-Disposition'
+              const contentDisposition = response.headers.get(
+                "Content-Disposition"
+              );
+              const fileNameMatch = contentDisposition.match(/filename="(.+)"/);
+
+              let fileName = "downloaded_file"; // Nome padrão, caso não encontre no cabeçalho
+              if (fileNameMatch) {
+                fileName = fileNameMatch[1];
+              }
+
+              return response.blob().then((blob) => ({ blob, fileName }));
+            })
+            .then(({ blob, fileName }) => {
+              // Cria o link de download oculto
+              const downloadLink = document.createElement("a");
+              downloadLink.href = URL.createObjectURL(blob);
+              downloadLink.download = fileName; // Define o nome do arquivo baixado
+
+              // Simula um clique no link de download para iniciar o download
+              downloadLink.click();
+
+              // Libera o objeto URL temporário
+              URL.revokeObjectURL(downloadLink.href);
+            })
+            .catch((error) => {
+              $("#loadingModal").modal("hide");
+              $("#errorModal").modal("show");
+              console.error("Error during ZIP download:", error);
+            });
+        } else {
+          alert("Nenhuma música para enviar.");
+        }
+      }
+    </script>
+  </body>
+</html>
