@@ -1,6 +1,6 @@
 from pytube import YouTube
 from youtubesearchpython import VideosSearch
-from flask import Flask, request, jsonify, render_template, send_file
+from flask import Flask, request, jsonify, render_template, send_file, after_this_request
 from flask_cors import CORS
 import time
 import os
@@ -86,6 +86,13 @@ def delete_directory(directory_path):
     except OSError as e:
         print(f"Error: Unable to delete the directory '{directory_path}'. {e}")
 
+# Função que será chamada após enviar a resposta para o cliente
+def after_request_action(response):
+    # Adicione aqui a ação que você deseja executar
+    print("A resposta foi enviada ao cliente!")
+    delete_directory('./temp')
+    return response
+
 @app.route('/', methods=['GET'])
 def render_index():
     return render_template('index.html')
@@ -97,6 +104,11 @@ def index():
     count_files_downloaded = 0
     to_download = False
     single_file_path = ''
+    
+    @after_this_request
+    def execute_after(response):
+        after_request_action(response)
+        return response        
 
     if request.method == 'POST':
         data = request.get_json()  # Extrai os dados JSON do corpo da requisição
@@ -130,5 +142,5 @@ def index():
             }
 
 if __name__ == '__main__':
-    port = int(os.environ.get('PORT', 5000))
+    port = int(os.environ.get('PORT', 8082))
     app.run(host='0.0.0.0', port=port)
