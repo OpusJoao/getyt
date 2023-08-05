@@ -16,7 +16,16 @@
   </head>
   <body>
     <div class="container mt-4">
-      <h1>Adicionar Músicas</h1>
+      <div class="row align-items-center">
+        <div class="col">
+            <h1>Adicionar Músicas</h1>
+        </div>
+        <div class="col">
+            <button class="btn btn-outline-primary mb-4 w-100" type="button" onclick="addInput()">
+                Adicionar
+            </button>
+        </div>
+    </div>
       <div id="inputs-container">
         <div class="input-group mb-3">
           <input
@@ -25,13 +34,6 @@
             name="song"
             placeholder="Digite o nome da música"
           />
-          <button
-            class="btn btn-outline-primary"
-            type="button"
-            onclick="addInput()"
-          >
-            Adicionar
-          </button>
         </div>
       </div>
       <select class="form-select mb-3" name="type">
@@ -99,15 +101,28 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 
     <script>
+      let indexButtons = 0;
       function addInput() {
         const inputsContainer = document.getElementById("inputs-container");
         const newInputGroup = document.createElement("div");
+        const dynamicId = `inputGroup${indexButtons}`;
+        newInputGroup.id = dynamicId;
         newInputGroup.classList.add("input-group", "mb-3");
         newInputGroup.innerHTML = `
                 <input type="text" class="form-control" name="song" placeholder="Digite o nome da música">
-                <button class="btn btn-outline-primary" type="button" onclick="addInput()">Adicionar</button>
+                <button class="btn btn-outline-danger" type="button" onclick="removeInput('${dynamicId}')">Remover</button>
             `;
         inputsContainer.appendChild(newInputGroup);
+        indexButtons++;
+      }
+
+      function removeInput(id) {
+        const element = document.getElementById(id);
+        if (element) {
+          element.remove();
+        } else {
+          console.error(`Element with id '${id}' not found.`);
+        }
       }
 
       function sendData() {
@@ -133,7 +148,7 @@
             toDownload: true,
           });
 
-          fetch('/', {
+          fetch("/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json", // Set the content type of the request body (if sending JSON data)
