@@ -18,11 +18,11 @@
     <div class="container mt-4">
       <div class="row align-items-center">
         <div class="col">
-            <h1>Adicionar Músicas</h1>
+            <h1>Add musics</h1>
         </div>
         <div class="col">
             <button class="btn btn-outline-primary mb-4 w-100" type="button" onclick="addInput()">
-                Adicionar
+                Add
             </button>
         </div>
     </div>
@@ -32,7 +32,7 @@
             type="text"
             class="form-control"
             name="song"
-            placeholder="Digite o nome da música"
+            placeholder="Enter the name or URL of the song"
           />
         </div>
       </div>
@@ -40,7 +40,7 @@
         <option value="audio">Audio</option>
         <option value="video">Video</option>
       </select>
-      <button class="btn btn-primary" onclick="sendData()">Enviar</button>
+      <button class="btn btn-primary" onclick="sendData()">Send</button>
     </div>
 
     <!-- Modal de Carregamento -->
@@ -58,7 +58,7 @@
             <div class="spinner-border text-primary" role="status">
               <span class="sr-only"></span>
             </div>
-            <h5 class="mt-2">Aguarde, processando...</h5>
+            <h5 class="mt-2">Wait, loading...</h5>
           </div>
         </div>
       </div>
@@ -77,7 +77,7 @@
           <div class="modal-body text-center">
             <!-- Add the red alert icon from Font Awesome -->
             <i class="fas fa-exclamation-triangle fa-4x text-danger"></i>
-            <h5 class="mt-2">Ocorreu um erro, tente novamente</h5>
+            <h5 class="mt-2">An error has occurred, try again</h5>
           </div>
           <div class="modal-footer">
             <!-- Add a red close button -->
@@ -87,7 +87,7 @@
               data-dismiss="modal"
               onclick="$('#errorModal').modal('hide')"
             >
-              Fechar
+              Close
             </button>
           </div>
         </div>
@@ -109,8 +109,8 @@
         newInputGroup.id = dynamicId;
         newInputGroup.classList.add("input-group", "mb-3");
         newInputGroup.innerHTML = `
-                <input type="text" class="form-control" name="song" placeholder="Digite o nome da música">
-                <button class="btn btn-outline-danger" type="button" onclick="removeInput('${dynamicId}')">Remover</button>
+                <input type="text" class="form-control" name="song" placeholder="Enter the name or URL of the song">
+                <button class="btn btn-outline-danger" type="button" onclick="removeInput('${dynamicId}')">Remove</button>
             `;
         inputsContainer.appendChild(newInputGroup);
         indexButtons++;
@@ -193,7 +193,7 @@
               console.error("Error during ZIP download:", error);
             });
         } else {
-          alert("Nenhuma música para enviar.");
+          alert("Add at least one music.");
         }
       }
     </script>

@@ -6,6 +6,7 @@ import time
 import os
 import shutil
 import zipfile
+import re
 
 VIDEO_DOWNLOAD_DIR = "/video"
 AUDIO_DOWNLOAD_DIR = "/audio"
@@ -18,12 +19,15 @@ def search_and_get_first_result_url(song_list):
     youtube_urls = []
 
     for song in song_list:
-        result = VideosSearch(song, limit=1).result()
+        if is_youtube_link(song):
+            youtube_urls.append(song)
+        else:
+            result = VideosSearch(song, limit=1).result()
 
-        if result and 'result' in result and result['result']:
-            first_video = result['result'][0]
-            url = first_video['link']
-            youtube_urls.append(url)
+            if result and 'result' in result and result['result']:
+                first_video = result['result'][0]
+                url = first_video['link']
+                youtube_urls.append(url)
 
     return youtube_urls
 
@@ -92,6 +96,17 @@ def after_request_action(response):
     print("A resposta foi enviada ao cliente!")
     delete_directory('./temp')
     return response
+
+
+def is_youtube_link(input_string):
+    # Define a regular expression pattern to match YouTube URLs
+    youtube_pattern = r'^(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/|youtube\.com/embed/|youtube\.com/v/|youtube\.com/user/[\w#]+/|youtube\.googleapis\.com/|www\.youtube\.com/music/|www\.youtube\.com/playlist\?list=|youtube\.com/c/[\w#]+|youtube\.com/channel/[\w#]+/|youtube\.com/(embed|v|shorts)/[\w#]+)$'
+
+    # Use the re.match function to check if the input matches the pattern
+    if re.match(youtube_pattern, input_string):
+        return True
+    else:
+        return False
 
 @app.route('/', methods=['GET'])
 def render_index():
