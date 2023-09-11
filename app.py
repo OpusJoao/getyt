@@ -111,7 +111,24 @@ def is_youtube_link(input_string):
 @app.route('/', methods=['GET'])
 def render_index():
     return render_template('index.html')
-    
+
+@app.route('/app', methods=['GET'])
+def render_app():
+    return render_template('app.html')
+
+@app.route('/contactUs', methods=['GET'])
+def render_contact_us():
+    return render_template('contact_us.html')
+
+@app.route('/privacyPolicy', methods=['GET'])
+def render_privacy_policy():
+    return render_template('privacy_policy.html')
+
+@app.route('/termsAndConditions', methods=['GET'])
+def render_terms_and_conditions():
+    return render_template('terms_and_conditions.html')
+
+
 @app.route('/', methods=['POST'])
 def index():
     current_name = str(time.time())
